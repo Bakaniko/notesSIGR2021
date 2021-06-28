@@ -1,0 +1,12 @@
+Package: notesSIGR2021
+Title: Notes from SIGR 2021 thematic school
+Version: 0.0.0.9000
+Authors@R: c(
+  person("Nicolas", "Roelandt", email = "nicolas.roelandt@univ-eiffel.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9698-4275")),
+  person(given = "gflowiz", role = "cph")
+ )
+Description: Contains a collection of notes files
+License: {{ License }}
+LazyData: true
+Encoding: UTF-8
+VignetteBuilder: knitr
