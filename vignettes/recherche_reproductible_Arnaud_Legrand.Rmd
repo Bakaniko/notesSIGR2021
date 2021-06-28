@@ -1,0 +1,19 @@
+---
+title: "Recherche reproductible - ArnaudLegrand"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{recherche_reproductible_Arnaud_Legrand}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(notesSIGR2021)
+```
