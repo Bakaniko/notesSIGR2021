@@ -1,5 +1,5 @@
 ---
-title: "Recherche reproductible - ArnaudLegrand"
+title: "Crise de la reproductibilité et science ouverte - Arnaud Legrand"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{recherche_reproductible_Arnaud_Legrand}
@@ -14,6 +14,142 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(notesSIGR2021)
-```
+# Manque de reproductibilité
+
+J.P. Ioannidis : problème d'expérimentations => résultats faux
+
+Fraude dans la recherche: comment la détecter ? Comité d'enquête => perte de crédibilité dans la recherche et la science.
+
+- Dong-Pyou Han (2013) : 57 mois de prison, 7.2 million de dollar d'amende, 1 article retiré
+- Dierik Stapel (2011) : 58 articles retirés
+- Brian Wansink (2016) : 17 articles retirés
+
+## Conséquences des mauvaises pratiques scientifiques
+- Reinhart et Rogoff (2010): politiques d'austérité, fichier excel pourri, méthodes pas claires. Point positif cela a con
+
+Mauvaise science délétère: soutient des politiques néfastes, affecte la vie des gens, frontière brouillé entre science et excroquerie, favorise les théories du complot
+
+# Crise de la crédibilité ?
+
+Ces problèmes ont toujours existés. Beaucoup plus de publications mais aussi beaucoup plus de rétractations.
+
+Difficultés à reproduire des études passées, tout domaine confondu.
+
+Plusieurs causes:
+
+- raisons sociales : conflits d'intérêt, manque d'incitation à reproduire son propre travail.
+- causes méthodologiques et techniques: biais, mauvais design, analyse faible, rapport faibles, manque d'information, code source non disponible
+
+Karl Popper (1934): notion de *falsifiability* et de *crucial experiment*, les bonnes expérimentations permettent de discriminer les bonnes des mauvaises théories.
+Les occurrences uniques non reproductibles n'apportent rien à la science : problème c'est un idéal pas un norme: évènements extrêmenent rares en astronomie, études comportementales
+
+# Reproductibilité : un valeur centrale de la sceince
+
+Universalité : Reproductibilité agit comme un moyen de contrôle, d'évaluer la robustesse.
+
+Incrément : la science se construit aussi sur le travail de tous, y compris les erreurs.
+La reproductibilité permet de réaliser un contrôle qualité.
+
+Les pratiques scientifiques ont évalos avec l'arrivée des ordinateurs  - Ben Marwirk (2015)
+
+## How computer broke science
+
+Geoffrey Chang : erreur de programmation dans un script utilisé dans plusieurs labos. 5 articles retirés. Pousse la communauté à améliorer les pratiques de génie logiciel.
+
+L'utilisation de tableur généère des problèmes: encodage des données, limites des logiciels (pertes de données COVID)
+Boite noire statistiques
+problèmes de statbilité numérique et d'environnement logiciel.
+
+# Les soucis de reproductibilité varient selon le domaine
+
+- problèmes méthodo, stats en SHS, cancérologie
+- ingénérie logicielle, reproductibilité computationnelle en génétique
+- mécanique des fluides : problèmes numériques
+
+Articlespubliés : uniquement résultats positifs mais pas de publication des échecs, des impasses
+
+Recherche reproductible: combler l'écart entre chercheur et lecteur par plus de transparence.
+
+# Première apparition de *reproductible research*
+
+Claerbout & Karrenbach (1992)
+
+# Reproductibilité, réplicable, robustesse, généralisation
+
+reproductibilité expériementale : mêmes données, mêmes protocole : résultat similaire
+
+reproductibilité statistiques : même daonnées, même analyse:
+
+reproductibilité computationnelle : même donnée, même code, même environnement : résutlats exactement identique
+
+# Outils existants, standards existants
+
+- notebook et workflow
+- environnement logiciels
+- plateforme de partage (github/gitlab/ zenodo/ HumaNum)
+
+# Bonnes pratiques
+## N°1 - prendre des notes et documenter
+### Document computationnel / progammation lettrée
+
+Du code doit être lisible par une machine mais aussi un humain.
+
+Outils : Jupyter notebook, Emacs Org-mode, Rstudio
+
+### Carnet de laboratoire et article reproductible
+
+Documenter:
+- les hypothèses
+- les expérimentations
+- l'analyse initial et/ou l'interprétation des expérimentations
+- organisation: garder trace des choses à faire, faites, à tester, améliorer
+
+### Workflows
+Les notebooks ne sont pas la panacée: ils peuvent devenir rapidement confus et n'incitent pas à faire du code propre
+
+Les workflows découpent le code en sous-parties qui exécutent une petite tâche
+
+Workflows:
+-  meilleur vision
+- code composition et mouvement de données
+
+Outils de workflow
+- Gnu Make
+- Galaxy, kepler, Taverna, Peagsus
+- R target, 
+- léger : drake, swift, snakemake (make en python)
+- hybrid: SOS-notebook
+
+## N°2 Contrôler l'environnement logiciel
+
+- environnement logiciel qui évolue
+- dépendance à la version du logiciel ou du système d'exploitation
+- impact du compilateur
+
+Challenge reScience : reproduire une étude de plus de 10 ans
+
+### Complexité des écosystèmes
+
+Matplotlib:
+- dépendances Python
+- dépendances système non visibles
+
+#### Ecosystèmes non standards
+
+### Outil peu accessible
+
+- documenter son usage
+- si installation trop compliquée, les gens ne vont pas l'utiliser
+
+### Gestionnaire de conteneur et de paquets
+
+- good : Guix
+- bad : Docker, singularity
+- ugly : ReproZip
+
+Conteneur:
+- pour : léger, bonne isolation, facile à utiliser
+- contre : opaque (image binaire déjà faite), n'est pas prévu pour faire de la reproductibilité (orienté admin-sys)
+
+- Gestionnaire de paquet  propres aux langages pip/pipenv/virtualenv, conda, CRAN/Bioconductor
+- GUIX/NiX: Gestionnaire de paquet fonctionnels, excellent isoloation, bon reproductibilité
