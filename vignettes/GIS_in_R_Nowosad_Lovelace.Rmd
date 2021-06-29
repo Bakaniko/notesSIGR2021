@@ -1,0 +1,122 @@
+---
+title: "GIS and mapping - A lecture on the GIS and mapping ecosystem of R"
+author:
+  - "Jakub Nowosad"
+  - "Robin Lovelace"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GIS_in_R_Nowosad_Lovelace}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+R best environnement for spatial analysis
+Geography is an applied field where we can use our skills in th real world.
+
+Evidence based on decision making.
+
+Robin: transport geographer
+
+Jakub : environnmental data, raster data
+
+You can think in code and test ideas.
+
+Use of `reprex`: 
+learn code takes times, 
+be able to ask question is important. 
+If something does not work it is important to show what I tried.
+=> **Reproducable exemple**
+
+`rstudioapi::openProject()` : open or create a project
+
+# GIS ecosystem of R
+
+Wild range of fields where R spatial can be use
+
+Large range of applications 
+- Exploratory data analysis (EDA)
+- output in different format
+- data processing
+- data visualisation
+
+
+R is a (geo)power tool
+
+R's ecosystem makes it easy to communicate your results.
+
+[Rpubs](rpubs.com) to share R document (dépot géré par Rstudio, un bouton intégré dans Rstudio)
+
+Building your own packages and distributing code
+
+Examples of packages:
+- data package : `{stats19}`
+- methods package : `{noise-phenomena}`, `{sabre}`
+
+`R spatial` : everything related to spatial data in R 
+
+`GEOS` works well for projected data
+`S2`  works for geographical data
+
+# Data models
+## Vector data model
+
+`sf` implements the Simple Features OGC standard
+`sp` maintenance will stop in 2024.
+
+most functions start with an `st_` prefix.
+
+`terra` packages has its own vector data classes but Jakub recommends using the regular geospatial data formats.
+
+
+Sf reading :
+- from file (through GDAL)
+- from CSV with `st_as_sf(df, coords = c("X", "Y"))`
+
+## Raster data model
+
+`raster` is successed by `terra`
+
+If you have to change more than 20% of a code base, you better have to start from 0 with a new package.
+
+`terra` is more performant than `raster`, most functions are written in C++.
+
+
+`stars` contains classes and methods for representing spatiotemporal data (raster and vector data)
+
+`rast()` reads raster data
+
+# Mapping ecosystem
+
+- static maps
+- interactive maps
+- both (tmap)
+- specific maps
+  - {cartogram}
+  - {geofacet} : divide spatial data into plots (while keeping the overall shape)
+  - {edgebundle}
+  
+# Coordinate reference systems
+- geographic coordinates (`GCRS`): ellipsoid and datum
+- projected coordinates (`PCRS`): GCRS + 
+
+How to describe:
+- CRS codes (like EPSG)
+- WKT2
+
+The `proj4string` is discouraged, especially for storing data.
+
+WKT2 is better than proj4string because of accuracy and time robusteness (dur to plaques tectonics)
+
+functions:
+- `sf::st_crs()` access to informations : `st_crs(world)$epsg`
+- `terra::crs()`
+
+# Geocomputation

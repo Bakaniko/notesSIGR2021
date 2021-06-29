@@ -1,0 +1,22 @@
+---
+title: "Introduction à git - Timothée Giraud"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction_git_Timothee_Giraud}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Objectif de l'atelier:
+- configurer git et Github pour partager une présentation et son code source
+
+Connexion git <-> github :
+- système de jeton (*token*) : https
+- système SSH

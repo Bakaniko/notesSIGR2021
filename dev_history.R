@@ -42,3 +42,5 @@ pkgdown::build_articles()
 
 usethis::use_vignette("litterate_programming_ronan_ysebaert")
 usethis::use_vignette("xarigan_Nicolas_Lambert")
+usethis::use_vignette("introduction_git_Timothee_Giraud")
+usethis::use_vignette("GIS_in_R_Nowosad_Lovelace")
