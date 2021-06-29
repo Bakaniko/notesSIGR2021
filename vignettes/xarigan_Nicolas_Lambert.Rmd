@@ -1,0 +1,105 @@
+---
+title: "Présentez vos travaux en Markdown"
+author: "Nicolas_Lambert"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{xarigan_Nicolas_Lambert}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+R + Mardown > ppt
+
+# Pour et contre
+## Avantages
+
+- tout se fait dans un environnement unique (R/Rstudio)
+- adapté au code
+- format web
+
+## Inconvénients
+- prise en main
+- HTML + CSS
+- changement des habitudes de travail
+
+# Xaringan
+
+Yihui Xie développe en 2017.
+
+templates Rmarkdown: **Ninja Presentation** (*{xaringan}*) et **Ninja Themed Presentation** (*{xaringanthemer}*)
+
+Plusieurs paramètres configurables : `self_contained`
+
+Séparatifs  de slides `---`
+
+Séparatifs d'éléments (apparition séquentielle) `--`
+
+
+Raccourcis utiles:
+
+- `p` : mode présentation
+- `f`: plein écran
+- `c`: cloner l'écran
+- `m`: miroir
+
+## Présenter du code
+
+- Insertion de code avec un chunck classique
+- highlight : `*` en début de ligne, code entre deux accolades `{{}}`, symbole `#<<` en fin de ligne
+
+Markdown classique: hiérachisation du texte, `.[note]`
+
+### Système de classe
+
+Permet de définir la position des éléments dans la slide ``class: bottom-right` pour l'ensemble des slides
+
+Possibilité de définir des classes pour des éléments précis : `.left[]`, `.right[]`, `.center[]`, 
+
+Contenu en vis-à-vis: `left-column[]`,`right-column[]`
+
+Il est possible de définir des classes css stockées dans `extra.css`
+
+### Layout
+Permet de garder des éléments récurrents (titre, pied de page)
+
+### images
+- import markdown
+- possibilité de modifier la taille: px, %
+- `background-side: cover` , `background-side: contains`...
+
+### Multimédia
+- images
+- vidéo
+- site web
+- carte leaflet
+- javascript
+- code R et sorties (graphiques, tableaux, cartes)
+
+# Embellir et personnaliser les présentations
+- option 1: apprendre le CSS
+- option 2: xaringanthemer
+
+## {xaringanthemer}
+- nouveau chunck avec des options (écrit le fichier css custom à la compilation)
+- doc très complète
+- auto-complétion
+
+## Aller plus loin 
+### `{xaringanExtra}`
+- utilisation d'`Animate.css` pour faire des transitions entre les slides
+- `tile-view` : table des matières avec les slides en mode tuiles
+- `xarigan-editable` : rendre du texte éditable
+- `xaringan-scribble` : utilise Scribble pour dessiner sur les slides
+- `xaringan-panelset`: utilisation d'onglets dans les slides
+- `xaringan-extra-search`: recherche dans la présentation
+- `{countdown}` : ajoute un compte à rebours
+
+
