@@ -1,0 +1,60 @@
+---
+title: "Litterate programming Ronan Ysebaert"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{litterate_programming_ronan_ysebaert}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Objectifs
+
+- initiation *literate programming*
+- bonnes pratiques en matière de reproductibilité et documentation de méthodes
+- ressource de références pour approfondir l'apprentissage
+
+# *Literate programming*
+
+**Paradigme de programmation** : associer un ensemble de code source (pour les ordinateurs) et de la documentation (pour les humains)
+
+- Explication de la pensée : *Expliquer à d'autres humains ce que l'ont veut que l'ordinateur fasse.* (Knuth 1970)
+
+- gain en qualité
+- transmission et partage de la connaissance
+
+Premier environnement **WEB** (Pascal + LaTex, Knuth 1984)
+
+# Document markdown
+ 3 parties
+ 
+ - métadonnées dans un bloc YAML
+ - du texte en mardown
+ - blocs de code structuré en R ou autre
+
+Formats de sorties nombreux 
+
+# Créer un projet Rmardown avec Rstudio
+
+le mode **Projet** facilite le travail discontinu (chemins relatifs), la portabilité et la reproductibilité
+
+- Préparer son espace de travail (fichier *R project* à la racine, dossier pour les données, dossier pour les figures)
+
+Modèles de fichier Rmarkdown paramétrables dans les métadonnées du document
+
+Bouton **Knit** (*tricoter*) pour générer le fichier sortie (HTML, pdf, etc...)
+
+## Mise en pratique
+- [Données](https://sharedocs.huma-num.fr/wl/?id=XWa9HY2Aw2FJHvuht2Ifk1AtV3XlRksg)
+
+
+# Bonnes pratiques
+
+- limiter les dépendances, surtout pour une seule ligne de code
+- coder et commenter en anglais pour pouvoir diffuser
