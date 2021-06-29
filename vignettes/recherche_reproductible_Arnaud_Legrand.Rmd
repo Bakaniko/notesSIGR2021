@@ -153,3 +153,64 @@ Conteneur:
 
 - Gestionnaire de paquet  propres aux langages pip/pipenv/virtualenv, conda, CRAN/Bioconductor
 - GUIX/NiX: Gestionnaire de paquet fonctionnels, excellent isoloation, bon reproductibilité
+
+## N°3: gestion des versions et forges logicielles
+
+### Git
+- outil de version de code
+- développé depiuis 2005 par Linus Torvalds
+- fonctionnement local avec possibilité de navigation poussées
+- *distribué* : tout le monde a une pleine copie de l'historique
+
+### Github, Gitlab et autres
+- hébergement gratuit de logiciels libres
+- interface web agréable
+- gestion des utilisateurs et des droits
+- issues, intégration continue
+
+Attention la pérennité n'est pas garantie !
+Cela permet de collaborer mais pas archiver.
+
+### Archives
+
+- Articles: arXiv.org, HAL
+- données: Zenodo (CERN, licence libre d'utilisation), figshare
+- logiciels: Software Heritage
+
+# Changer la façon de produire de la recherche
+## Changer les pratiques de recherche
+
+Software Carpentry, The Turing Way
+
+## Changer les pratiques de publication
+
+Evaluation des artéfacts et badges ACM
+
+Conférences majeures: en mode open review, prix de l'article le plus reproductible, challenge de reproductibilité
+
+## Chnager les pratiques académiques
+
+Mettre fin au *Publish or perish*
+
+Publications de reproduction d'articles
+
+Arrêter la prise en compte de l'*impact factor*
+
+# Plan National pour la Science Ouverte
+
+Piliers principaux:
+- *Open Access*
+- *Open Data*
+- *Open Source*
+- *Open Methodology* : recherche reproductible (notebooks ouverts, infrastructures scientifiques ouvertes)
+- *Open peer review* : éviter les collusions
+- *Open eductional ressources*
+
+# Resources
+- guide de la recherche reproductible
+- MOOC Recherche reproductible
+- à venir MOOC RR avancé => 2022
+  - contrôle de l'environnement logiciel
+  - workflow scientifique
+  - gestion des données
+
