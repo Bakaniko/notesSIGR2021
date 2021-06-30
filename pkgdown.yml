@@ -2,7 +2,9 @@ pandoc: 2.7.3
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
+  GIS_in_R_Nowosad_Lovelace: GIS_in_R_Nowosad_Lovelace.html
+  introduction_git_Timothee_Giraud: introduction_git_Timothee_Giraud.html
   litterate_programming_ronan_ysebaert: litterate_programming_ronan_ysebaert.html
   recherche_reproductible_Arnaud_Legrand: recherche_reproductible_Arnaud_Legrand.html
-last_built: 2021-06-29T07:08Z
+last_built: 2021-06-30T07:11Z
 

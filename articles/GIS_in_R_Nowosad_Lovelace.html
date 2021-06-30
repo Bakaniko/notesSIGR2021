@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Litterate programming Ronan Ysebaert • notesSIGR2021</title>
+<title>GIS and mapping - A lecture on the GIS and mapping ecosystem of R • notesSIGR2021</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Litterate programming Ronan Ysebaert">
+<script src="../pkgdown.js"></script><meta property="og:title" content="GIS and mapping - A lecture on the GIS and mapping ecosystem of R">
 <meta property="og:description" content="notesSIGR2021">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -78,76 +78,93 @@
 
       
 
-      </header><script src="litterate_programming_ronan_ysebaert_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="GIS_in_R_Nowosad_Lovelace_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Litterate programming Ronan Ysebaert</h1>
+      <h1 data-toc-skip>GIS and mapping - A lecture on the GIS and mapping ecosystem of R</h1>
+                        <h4 class="author">Jakub Nowosad</h4>
+                        <h4 class="author">Robin Lovelace</h4>
             
       
       
-      <div class="hidden name"><code>litterate_programming_ronan_ysebaert.Rmd</code></div>
+      <div class="hidden name"><code>GIS_in_R_Nowosad_Lovelace.Rmd</code></div>
 
     </div>
 
     
     
-<div id="objectifs" class="section level1">
+<p>R best environnement for spatial analysis Geography is an applied field where we can use our skills in th real world.</p>
+<p>Evidence based on decision making.</p>
+<p>Robin: transport geographer</p>
+<p>Jakub : environnmental data, raster data</p>
+<p>You can think in code and test ideas.</p>
+<p>Use of <code>reprex</code>: learn code takes times, be able to ask question is important. If something does not work it is important to show what I tried. =&gt; <strong>Reproducable exemple</strong></p>
+<p><code>rstudioapi::openProject()</code> : open or create a project</p>
+<div id="gis-ecosystem-of-r" class="section level1">
 <h1 class="hasAnchor">
-<a href="#objectifs" class="anchor"></a>Objectifs</h1>
-<ul>
-<li>initiation <em>literate programming</em>
-</li>
-<li>bonnes pratiques en matière de reproductibilité et documentation de méthodes</li>
-<li>ressource de références pour approfondir l’apprentissage</li>
-</ul>
+<a href="#gis-ecosystem-of-r" class="anchor"></a>GIS ecosystem of R</h1>
+<p>Wild range of fields where R spatial can be use</p>
+<p>Large range of applications - Exploratory data analysis (EDA) - output in different format - data processing - data visualisation</p>
+<p>R is a (geo)power tool</p>
+<p>R’s ecosystem makes it easy to communicate your results.</p>
+<p><a href="rpubs.com">Rpubs</a> to share R document (dépot géré par Rstudio, un bouton intégré dans Rstudio)</p>
+<p>Building your own packages and distributing code</p>
+<p>Examples of packages: - data package : <code>{stats19}</code> - methods package : <code>{noise-phenomena}</code>, <code>{sabre}</code></p>
+<p><code>R spatial</code> : everything related to spatial data in R</p>
+<p><code>GEOS</code> works well for projected data <code>S2</code> works for geographical data</p>
 </div>
-<div id="literate-programming" class="section level1">
+<div id="data-models" class="section level1">
 <h1 class="hasAnchor">
-<a href="#literate-programming" class="anchor"></a><em>Literate programming</em>
-</h1>
-<p><strong>Paradigme de programmation</strong> : associer un ensemble de code source (pour les ordinateurs) et de la documentation (pour les humains)</p>
-<ul>
-<li><p>Explication de la pensée : <em>Expliquer à d’autres humains ce que l’ont veut que l’ordinateur fasse.</em> (Knuth 1970)</p></li>
-<li><p>gain en qualité</p></li>
-<li><p>transmission et partage de la connaissance</p></li>
-</ul>
-<p>Premier environnement <strong>WEB</strong> (Pascal + LaTex, Knuth 1984)</p>
-</div>
-<div id="document-markdown" class="section level1">
-<h1 class="hasAnchor">
-<a href="#document-markdown" class="anchor"></a>Document markdown</h1>
-<p>3 parties</p>
-<ul>
-<li>métadonnées dans un bloc YAML</li>
-<li>du texte en mardown</li>
-<li>blocs de code structuré en R ou autre</li>
-</ul>
-<p>Formats de sorties nombreux</p>
-</div>
-<div id="créer-un-projet-rmardown-avec-rstudio" class="section level1">
-<h1 class="hasAnchor">
-<a href="#cr%C3%A9er-un-projet-rmardown-avec-rstudio" class="anchor"></a>Créer un projet Rmardown avec Rstudio</h1>
-<p>le mode <strong>Projet</strong> facilite le travail discontinu (chemins relatifs), la portabilité et la reproductibilité</p>
-<ul>
-<li>Préparer son espace de travail (fichier <em>R project</em> à la racine, dossier pour les données, dossier pour les figures)</li>
-</ul>
-<p>Modèles de fichier Rmarkdown paramétrables dans les métadonnées du document</p>
-<p>Bouton <strong>Knit</strong> (<em>tricoter</em>) pour générer le fichier sortie (HTML, pdf, etc…)</p>
-<div id="mise-en-pratique" class="section level2">
+<a href="#data-models" class="anchor"></a>Data models</h1>
+<div id="vector-data-model" class="section level2">
 <h2 class="hasAnchor">
-<a href="#mise-en-pratique" class="anchor"></a>Mise en pratique</h2>
-<ul>
-<li><a href="https://sharedocs.huma-num.fr/wl/?id=XWa9HY2Aw2FJHvuht2Ifk1AtV3XlRksg">Données</a></li>
-</ul>
+<a href="#vector-data-model" class="anchor"></a>Vector data model</h2>
+<p><code>sf</code> implements the Simple Features OGC standard <code>sp</code> maintenance will stop in 2024.</p>
+<p>most functions start with an <code>st_</code> prefix.</p>
+<p><code>terra</code> packages has its own vector data classes but Jakub recommends using the regular geospatial data formats.</p>
+<p>Sf reading : - from file (through GDAL) - from CSV with <code>st_as_sf(df, coords = c("X", "Y"))</code></p>
+</div>
+<div id="raster-data-model" class="section level2">
+<h2 class="hasAnchor">
+<a href="#raster-data-model" class="anchor"></a>Raster data model</h2>
+<p><code>raster</code> is successed by <code>terra</code></p>
+<p>If you have to change more than 20% of a code base, you better have to start from 0 with a new package.</p>
+<p><code>terra</code> is more performant than <code>raster</code>, most functions are written in C++.</p>
+<p><code>stars</code> contains classes and methods for representing spatiotemporal data (raster and vector data)</p>
+<p><code>rast()</code> reads raster data</p>
 </div>
 </div>
-<div id="bonnes-pratiques" class="section level1">
+<div id="mapping-ecosystem" class="section level1">
 <h1 class="hasAnchor">
-<a href="#bonnes-pratiques" class="anchor"></a>Bonnes pratiques</h1>
+<a href="#mapping-ecosystem" class="anchor"></a>Mapping ecosystem</h1>
 <ul>
-<li>limiter les dépendances, surtout pour une seule ligne de code</li>
-<li>coder et commenter en anglais pour pouvoir diffuser</li>
+<li>static maps</li>
+<li>interactive maps</li>
+<li>both (tmap)</li>
+<li>specific maps
+<ul>
+<li>{cartogram}</li>
+<li>{geofacet} : divide spatial data into plots (while keeping the overall shape)</li>
+<li>{edgebundle}</li>
 </ul>
+</li>
+</ul>
+</div>
+<div id="coordinate-reference-systems" class="section level1">
+<h1 class="hasAnchor">
+<a href="#coordinate-reference-systems" class="anchor"></a>Coordinate reference systems</h1>
+<ul>
+<li>geographic coordinates (<code>GCRS</code>): ellipsoid and datum</li>
+<li>projected coordinates (<code>PCRS</code>): GCRS +</li>
+</ul>
+<p>How to describe: - CRS codes (like EPSG) - WKT2</p>
+<p>The <code>proj4string</code> is discouraged, especially for storing data.</p>
+<p>WKT2 is better than proj4string because of accuracy and time robusteness (dur to plaques tectonics)</p>
+<p>functions: - <code>sf::st_crs()</code> access to informations : <code>st_crs(world)$epsg</code> - <code>terra::crs()</code></p>
+</div>
+<div id="geocomputation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#geocomputation" class="anchor"></a>Geocomputation</h1>
 </div>
   </div>
 
