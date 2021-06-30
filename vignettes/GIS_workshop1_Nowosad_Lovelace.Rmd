@@ -1,0 +1,181 @@
+---
+title: "GIS_workshop1_Nowosad_Lovelace"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GIS_workshop1_Nowosad_Lovelace}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Slides: https://nowosad.github.io/SIGR2021/workshop1/workshop1_rl.html#1
+
+# Example datasets
+## Why use example Datasets
+
+- learning and documenting the use of the package
+- use a small dataset rather than a large dataset => quicker 
+- unit testing
+
+size of a sample dataset:
+- small enough to be fast
+- but with edge cases
+
+You can have multiple datasets (small/large, differents areas)
+
+Robin recommends to create an example dataset to save time.
+Documenting it is recommended but not mandatory.
+
+
+ActDev example: know where to stop R: R is the backend, the webapplication to visualise the data is in JS.
+
+```{r R-datasets}
+library(help ="datasets") # full list of datasets
+```
+
+Listed datasets are available directly from R.
+
+### Plot 2 datasets
+```{r plot-trees}
+plot(trees)
+```
+
+```{r plot-Lake-Huron}
+plot(LakeHuron)
+```
+
+### Get information on data in a package
+
+```{r}
+help(package = "spData")
+```
+
+```{r airpassenger-help}
+?AirPassengers
+```
+
+```{r plot-nz}
+library(spData)
+plot(nz) # if list error, maybe because sf is not loaded yet and plot don't know how to plot sf objects
+
+plot(nz$geom)
+```
+
+
+Make a copy to work on is good practice.
+
+```{r make-a-copy}
+nz2 = nz
+plot(nz)
+```
+
+```{r}
+library(nzelect)
+
+nz_lonlat = sf::st_transform(nz, 4326)
+names(voting_places)
+
+# create points from coordinates
+voting_places_sf = sf::st_as_sf(voting_places, coords = c("longitude", "latitude"))
+
+plot(sf::st_geometry(nz_lonlat))
+plot(voting_places_sf, add = TRUE)
+```
+
+### Spatial subsetting
+
+Filtering voting places that are inside NZ island
+```{r}
+vsub = voting_places_sf[nz,] # Error message because mismatching CRS issues
+```
+
+```{r}
+sf::st_crs(voting_places_sf) # NA
+sf::st_crs(nz) # EPSG:2193
+```
+
+Voting_places_sf does not have a crs
+
+Fixing issues
+
+```{r}
+voting_places_sf <- sf::st_set_crs(voting_places_sf, st_crs(4326))
+sf::st_crs(voting_places_sf)
+nz_lonlat <- sf::st_transform(crs = st_crs(4326))
+vsub = voting_places_sf[nz_lonlat,]
+```
+
+
+```{r}
+plot(sf::st_geometry(nz_lonlat))
+plot(vsub, add = TRUE)
+```
+
+# Using OSM data
+
+Quite informal but very very rich
+Interesting when you can't access official data
+
+
+Simple requests: {osmdata}
+
+```{r}
+library(osmdata)
+```
+
+```{r}
+schools_nz_osm <- opq(bbox = sf::st_bbox(nz_lonlat)) %>%
+  add_osm_feature(key = "amenity", value = "school")
+```
+
+## Working with messy data
+
+`skimr:skim` : resume data
+
+- selecting variables of interest : saving space and time
+
+
+
+### source outside code
+```{r}
+source("https://raw.githubusercontent.com/Nowosad/SIGR2021/master/workshop1/osm_combine.R")
+
+# osm_combine() is available in the environnment
+```
+
+## Big OSM data
+
+For large dataset (> 100 MB)
+```{r}
+library(osmextract)
+```
+
+Needs a place name, and parameters (date type (e.g. "amenity") and an SQL query for the OSM server)
+
+# Tidyverse
+
+```{r}
+library(spData)
+library(sf)
+library(tidyverse)
+
+nz %>%
+  filter(Island == "South")
+```
+
+## Geometry operations
+
+- Simplification : `rmapshaper::ms_simplify`
+- `st_is_valid()` : check if geometries are valid
+- `st_make_valid()` : fixes geometries
+
+## download online data
+- `download.file`
+- `readr` can read some ressources
+## 
