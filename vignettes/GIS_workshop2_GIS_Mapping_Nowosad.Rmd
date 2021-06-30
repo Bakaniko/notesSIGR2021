@@ -1,0 +1,231 @@
+---
+title: "GIS and mapping" 
+author: "Jakub Nowosad"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GIS_workshop2_GIS_Mapping_Nowosad}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(notesSIGR2021)
+```
+
+Slides: https://nowosad.github.io/SIGR2021/workshop1/workshop1_jn.html#1
+
+```{r}
+library(sf)
+library(terra)
+library(tmap)
+library(spData)
+library(spDataLarge)
+```
+
+# Mapping
+
+```{r}
+nz_elev = terra::rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
+plot(nz_elev)
+```
+
+Tmap functions starts with `tm_` prefix
+
+`tm_borders` : outline empty polygons
+`tm_legends` : create manual legends
+`tm_layout` : overall look of the map (margin, frame, title, background color)
+
+# Shapes and layers
+
+## raster data
+
+- `tm_raster` : elevation, pluviometry, etc.
+- `tm_rgb` : satellite imagery with 3 layers dataset (visible, false colors)
+
+```{r}
+tm_shape(nz_elev) + # data what we want to plot
+  tm_graticules() + # add graticules, lines in degrees (not working ?)
+  #tm_grid() + # grid for projected data
+  tm_raster( # we want to plot the shape as a raster
+    title = "elevation as asl", # change legend title
+    style = "cont", # discretization (échelle continue, sans classes)
+    palette = "-Spectral" # palette spectal inversée
+    #palette = c("green","blue", "yellow", "red") # palette custom
+            ) +
+  tm_shape(nz) + # New Zealand vector data
+  tm_borders(col = "black", # black borders with empty polygons see tm_fill() and tm_polygons()
+             lwd = 1 ) +
+  tm_shape(nz_height) +
+  tm_symbols(size = 0.2, col = 'red', shape = 17) + # chnage point size and colors
+  tm_add_legend(type = "symbol", col = "red", shape = 17, title = "Highest peaks") +
+  tm_scale_bar(breaks = c(0,100,200)) +
+  tm_compass(position = c("right", "top"),
+             type = "radar",
+             size = 2) +
+  tm_credits(text = "N. Roelandt, 2021") +
+  tm_layout(main.title = "New Zealand topography",
+            bg.color = "lightblue", # background color #add8e6
+            inner.margins = c(0.01,0.01,0.01,0.2), # bottom, left, top, right
+            legend.outside = TRUE,
+            frame = FALSE)
+
+  
+```
+
+```{r}
+library(sf)
+
+nz_4326 = st_transform(nz, 4326)
+
+tm_shape(nz_4326) +
+  tm_polygons(text.size = 1, breaks = c(0,20))
+```
+
+
+## Explore color palettes in {tmap}
+
+```{r}
+tmaptools::palette_explorer()# needs shiny installed
+```
+
+```{r}
+tm_shape(nz) +
+  tm_polygons(col = "Median_income",
+              title = "Median income (USD)",
+              style = "jenks",
+              n = 20,
+              legend.hist = TRUE) +
+  tm_layout(inner.margins = c(0,0.02,0,0.5)) # ajust margins
+```
+
+```{r}
+tm_shape(nz) +
+  tm_polygons(col = "Median_income",
+              title = "Median income (USD)",
+              style = "jenks",
+              n = 20,
+              legend.hist = TRUE,
+              legend.format = list(digits =1 )) + # mise en forme de la legend
+  tm_layout(legend.outside = TRUE) # move legend outside the map
+```
+
+
+# Modes
+
+Static map / interactive map
+
+```{r}
+tmap_mode("view") +
+tm_shape(nz_elev) + # data what we want to plot
+  tm_graticules() + # add graticules, lines in degrees (not working ?)
+  #tm_grid() + # grid for projected data
+  tm_raster( # we want to plot the shape as a raster
+    title = "elevation as asl", # change legend title
+    style = "cont", # discretization (échelle continue, sans classes)
+    palette = "-Spectral" # palette spectal inversée
+    #palette = c("green","blue", "yellow", "red") # palette custom
+            ) +
+  tm_shape(nz) + # New Zealand vector data
+  tm_borders(col = "black", # black borders with empty polygons see tm_fill() and tm_polygons()
+             lwd = 1 ) +
+  tm_shape(nz_height) +
+  tm_symbols(size = 0.2, col = 'red', shape = 17) + # chnage point size and colors
+  tm_add_legend(type = "symbol", col = "red", shape = 17, title = "Highest peaks") +
+  tm_scale_bar(breaks = c(0,100,200)) +
+  tm_compass(position = c("right", "top"),
+             type = "radar",
+             size = 2) +
+  tm_credits(text = "N. Roelandt, 2021") +
+  tm_layout(main.title = "New Zealand topography",
+            bg.color = "lightblue", # background color #add8e6
+            inner.margins = c(0.01,0.01,0.01,0.2), # bottom, left, top, right
+            legend.outside = TRUE,
+            frame = FALSE)
+
+```
+
+# Saving
+
+```{r}
+my_map = tm_shape(nz_elev) + # data what we want to plot
+  tm_graticules() + # add graticules, lines in degrees (not working ?)
+  #tm_grid() + # grid for projected data
+  tm_raster( # we want to plot the shape as a raster
+    title = "elevation as asl", # change legend title
+    style = "cont", # discretization (échelle continue, sans classes)
+    palette = "-Spectral" # palette spectal inversée
+    #palette = c("green","blue", "yellow", "red") # palette custom
+            ) +
+  tm_shape(nz) + # New Zealand vector data
+  tm_borders(col = "black", # black borders with empty polygons see tm_fill() and tm_polygons()
+             lwd = 1 ) +
+  tm_shape(nz_height) +
+  tm_symbols(size = 0.2, col = 'red', shape = 17) + # change point size and colors
+  tm_add_legend(type = "symbol", col = "red", shape = 17, title = "Highest peaks") +
+  tm_scale_bar(breaks = c(0,100,200)) +
+  tm_compass(position = c("right", "top"),
+             type = "radar",
+             size = 2) +
+  tm_credits(text = "N. Roelandt, 2021") +
+  tm_layout(main.title = "New Zealand topography",
+            bg.color = "lightblue", # background color #add8e6
+            inner.margins = c(0.01,0.01,0.01,0.2), # bottom, left, top, right
+            legend.outside = TRUE,
+            frame = FALSE)
+
+my_map
+
+tmap::tmap_mode("view")
+my_map
+tmap::tmap_mode("plot")
+my_map
+
+tmap_save(my_map, filename = "vignettes/images/nz.png", width = 300, height = 800, dpi = 300)
+tmap_save(my_map, filename = "vignettes/images/nz.svg")
+tmap_save(my_map, filename = "vignettes/images/nz.html")
+```
+
+* `tm_` : functions to make maps
+* `tmap_` : interact with the whole map
+
+# Exercices
+```{r}
+library(sf);library(tmap);library(spData);library(dplyr)
+us_states = left_join(us_states, us_states_df, by = c("NAME" = "state"))
+us_states2163 = st_transform(us_states, "EPSG:2163")
+```
+
+
+
+- Run the code above. Create a simple map of the reprojected data for contiguous United States (object us_states2163) with the graticule lines.
+
+```{r}
+us_map = tm_shape(us_states2163) + # data what we want to plot
+  tm_grid() +
+  tm_borders(col = "black", lwd =1)
+us_map
+```
+
+- Improve the map of the reprojected data for contiguous United States by coloring states based on their median income in 2015 (median_income_15). Improve the legend title. Try different color palettes. Change the width of the borders. Put the legend on the right side of the map.
+
+```{r}
+us_map = us_map +
+  tm_fill(col = "median_income_15",
+          title = "2015 median income (in US$)",
+          palette = )
+  
+us_map
+```
+
+- Try different color scale styles. Which one is the best in your opinion?
+- Improve the map of the reprojected data for contiguous United States (object us_states2163) further by adding a map title, scale bar, north arrow, and text annotation. Try to improve locations of the map elements.
+- Change the tmap mode to "view" and recreate maps from Exercise 4. What are the pros and cons of using static or interactive maps? What are the map's elements that can exist in static maps, but are not rendered in the interactive maps?
+- Save the map from Exercise 4 as a .png, .svg, and .html file. When can different file formats be useful?
+
