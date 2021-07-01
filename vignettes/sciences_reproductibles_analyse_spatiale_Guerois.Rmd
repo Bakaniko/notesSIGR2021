@@ -1,0 +1,80 @@
+---
+title: "Sciences reproductibles et analyse spatiale\nquelques lectures et retours d'expérience"
+author: "Marianne Guérois"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{sciences_reproductibles_analyse_spatiale_Guerois}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Analyse spatiale (au sens large): analyse des localisations et des interactions spatiales
+
+# Etat de l'art
+
+Erreurs
+- Brundson et al. : recencion d'obstacles techniques (blackbox) ou méthodologiques (MAUP) à la reproductibilité
+
+Géographes pionniers d'un approche reproducible (computation) : Openshaw et Taylor (1979) : étude controversée
+- première exemple de lissage par noyaux
+
+Enquêtes sur les pratiques de reproductibilité
+
+## RR en analyse spatiale : un statut particulier ?
+
+- Cura et al. 2017 : difficultés particulières partagées par d'autres sciences sociales
+- Brundson, 2016 : incertitudes liées à la nature de l'information géographique
+- Goodchild, 2020: statut ambigu de la RR lié à la nature de l'explication géographique (hétérogénéité spatiale) => limites à la reproductibilité sur d'autres zones d'études
+
+Synthèse Kedron et al (Geographical analysis, 2021)
+
+## Exemples
+### Artificialisation
+
+Ruas 2020: grande diversité de mesures de la part 'espaces artificiels : époques et définitions différentes.
+
+Exemple des parcs et jardins urbains : artificiels au sens ou l'exploitation agricole mais végétalisés.
+
+### Documentation reproductible sur le pré-traitement des données AirDNA
+
+- fournir un document qui explique les données et leurs spécificités
+- AirDNA: 2 bases au niveau communal:
+  - Annonces présentes sur la commune
+  - Performances mensuelles
+  - 1000€ / (petite) commune, 5 dernières années
+- Documentation en markdown diffusable mais reste la question de la diffusion des données (agrégation ? Carroyage ? génération de données aléatoires ?)
+
+### Reproductilité harmonisation de bases de données urbaines internationales (ex TRADEVE)
+- base de périmètre des villes > 20K hab. en Europe
+- 1960 -> 2010
+- suivi des populations communales et évolution démographique
+
+- multiplicité des définitions de la ville en Europe
+  - trajets domicile-travail
+  - LUZ (large urban units) pop > 50K hab.
+  - UMZ (continuité du bâti)
+  
+- publication d'un *data paper* avec beaucoup de tâtonnements (niveau de détails, variables diffusées) dans la revue *Cybergéo*.
+- Dépôt des données ? Nakala ? Zip sur le serveur du labo ?
+
+- Modèle unique UN, Eurostat avec des critères fixes, à l'échelle mondiale
+  - densité minimale du carreau
+  - population minimale
+  - contiguïté
+  
+### Zonages en aires d'attractions
+
+Ivan Glita (2021)
+
+- Alignement avec la définition européenne: cassure avec les aires urbaines, cohérence transfrontalières
+- simplification des types (disparition des communes multipolarisées)
+
+- Peu de variation en terme de population
+- mais variation importante dans le zonage
