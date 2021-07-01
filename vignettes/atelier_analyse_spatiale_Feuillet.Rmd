@@ -1,0 +1,619 @@
+---
+title: "Atelier d'analyse spatiale"
+author: "Thierry Feuillet"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{atelier_analyse_spatiale_Feuillet}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Support : https://sigr2021.github.io/gwr/
+
+```{r libraries}
+library(tidyverse)
+library(sf)
+library(tmap)
+library(plotly)
+library(gtsummary)
+library(GGally)
+library(GWmodel)
+library(spdep)
+library(reshape2)
+```
+
+Méthode permettant d'analyser l'hétérogénéité spatiale
+
+2 lois de géographie
+- dépendance spatiale : choses liées quand porche : auto-corrélation spatiale
+- hétérogénéité spatiale: les choses varient dans l'espace (moyenne ou variance, co-variance (les ))
+
+Aujourd'hui étude de la covariance
+
+Non-stationarité spatiale : instabilité dans l'espace des moyennes, variances et covariances.
+
+Lien entre le prix de vente d'un bien immobilier et la surface généralement fort.
+
+Exploration par l'analyse spatiale
+Méthode GWR : Geographical Weighted Regression : Régression géographiquement pondérée.
+
+Cas d'études: étude du marché immobilier à Oléron.
+
+4 étapes
+- chargement de la base
+- modèle de régression classique (moindes carrés)
+- GWR
+- extensions possibles
+  - GWR multi-scalaire
+  - classification sur les résidus de la GWR: régionalisation de l'espace
+
+
+# Import et préparation des données
+
+Base DVF ouverte depuis 2019, réputée fiable
+
+## import de la base
+```{r import}
+data <- read_csv("https://files.data.gouv.fr/geo-dvf/latest/csv/2020/departements/17.csv.gz")
+head(data) #Pour vérifier que l'import est correct
+```
+
+## Filtrage
+- les communes
+- les ventes
+- uniquement les maisons
+- suppression des valeurs NA
+
+```{r}
+dataOleron <- data %>% 
+  filter(nom_commune %in% c("Dolus-d'Oléron",
+                            "La Brée-les-Bains",
+                            "Le Château-d'Oléron",
+                            "Le Grand-Village-Plage",
+                            "Saint-Denis-d'Oléron",
+                            "Saint-Georges-d'Oléron",
+                            "Saint-Pierre-d'Oléron",
+                            "Saint-Trojan-les-Bains") & 
+           nature_mutation == "Vente" & 
+           type_local == "Maison" &
+           !is.na(longitude) & 
+           !is.na(surface_terrain) &
+           !is.na(valeur_fonciere))
+```
+
+### Conversion en dataframe {sf}
+```{r create-geometry}
+dataSf <- dataOleron %>% 
+  st_as_sf(coords = c("longitude","latitude"), 
+           crs = 4326) # WGS84
+
+plot(st_geometry(dataSf))
+```
+
+### Import du fond de carte en shapefile
+
+Données source: https://github.com/sigr2021/gwr
+
+```{r}
+oleron <- st_read("data-raw/oleron.shp")
+```
+
+
+```{r}
+tmap_mode("view")
+
+## tmap mode set to interactive viewing
+
+tm_shape(oleron) + 
+  tm_lines(col = "black") + 
+  tm_shape(dataSf) + 
+  tm_dots(col = "red")
+```
+
+
+### Création d'une nouvelle variable : distance au littoral
+
+Hypothèse : prix des maisons varient en fonction de la distance au littoral.
+
+Distance au littoral : variable prédictive
+
+```{r}
+dataSf$dist_litt <- st_distance(dataSf, oleron) %>% 
+  as.numeric()
+```
+
+
+# Exploration des variables
+
+
+## Distribution de la variable dépendante (prix de vente)
+
+```{r histo-prix-foncier}
+plot_ly(dataSf, x = ~valeur_fonciere) %>% add_histogram()
+```
+
+La forme de la distribution permet de choisir le modèle.
+C'est l'allure de la variable dépendante va aider au calibrage des données.
+
+La distribution tire à droite, il faut utiliser une fonction log pour la rendre normale.
+
+
+## Suppression d’une valeur aberrante
+
+```{r}
+dataSf <- dataSf %>% filter(valeur_fonciere > 1000)
+```
+
+
+
+## Distribution très dissymétrique
+
+Transformation avec une fonction `log()` permet de normaliser la forme de la distribution
+
+```{r}
+plot_ly(dataSf, x = ~log(valeur_fonciere)) %>% add_histogram()
+```
+
+En régression, les valeurs abberrantes peuvent tirer les coefficients.
+
+## Distribution des variables indépendantes
+
+```{r variables-independantes}
+a <- plot_ly(dataSf, x = ~log(dist_litt)) %>% add_histogram()
+b <- plot_ly(dataSf, x = ~log(surface_reelle_bati)) %>% add_histogram()
+c <- plot_ly(dataSf, x = ~log(surface_terrain)) %>% add_histogram()
+subplot(a,b,c)
+```
+
+
+Fonction plot_ly permet d'avoir un graphique interactif.
+
+En régression, les variables explicatives n'ont pas besoin d'être *loggées* mais c'est plus simple.
+Les modèles **log-log**, l'interprétation est plus simple (effet d'un pourcentage sur un autre pourcentage)
+
+
+Poursuite de la préparation des données.
+
+```{r}
+# Suppression des maisons vraisemblablement trop petites
+dataSf <- dataSf %>% filter(surface_reelle_bati > 10)
+
+# Création des variables log (pour faciliter la carto par la suite)
+dataSf$log_valeur_fonciere <- log(dataSf$valeur_fonciere)
+dataSf$log_dist_litt <- log(dataSf$dist_litt)
+dataSf$log_surface_reelle_bati <- log(dataSf$surface_reelle_bati)
+dataSf$log_surface_terrain <- log(dataSf$surface_terrain)
+```
+
+
+## Relations bivariées - formes fonctionelles
+
+On regarde si les relations sont linéaires (pour pouvoir faire une régression linéaire)
+
+### Lien prix - distance au littoral
+
+
+```{r}
+
+ggplot(dataSf, aes(x=log(dist_litt), y=log(valeur_fonciere))) + 
+  geom_point() + geom_smooth()
+```
+
+Relation assez plate mais pas non linéaire, légèrement négative (plus on s'éloigne du littoral plus prix baisse. Mais pas nécessairement, il y a de l'hétérogéinité spatiale).
+
+
+### Lien prix-surface réelle
+```{r}
+ggplot(dataSf, aes(x=log(surface_reelle_bati), y=log(valeur_fonciere))) + 
+  geom_point() + geom_smooth()
+```
+
+### Lien prix- surface terrain
+```{r}
+ggplot(dataSf, aes(x=log(surface_terrain), y=log(valeur_fonciere))) + 
+  geom_point() + geom_smooth()
+```
+
+# Modèle log-log global (MCO)
+Relation moyenne sur tout l'espace
+
+- Fonction `lm` : *linear modele* régression variable quantitative continue
+- Fonction `glm` : variable qualitative, modéle généralisé
+
+```{r}
+mco <- lm(log_valeur_fonciere ~ log_dist_litt + log_surface_reelle_bati + log_surface_terrain, data = dataSf)
+mco %>%
+  tbl_regression(intercept = TRUE) %>% add_vif() # problème (voir package gtsummary ?)
+```
+
+**VIF**: *Variance Inflation Factor*
+
+Si 0 n'est pas dans l'intervalle de confiance, cela veut dire que la relation est significative.
+Si 0 compris dans l'intervalle de confiance, la relation peut être nulle.
+
+Interprétation si distance au littoral augmente de 1%, les prix diminuent de 0,08%.
+
+```{r}
+summary(mco)
+```
+
+Représentation graphique des coefficients
+
+```{r}
+ggcoef_model(mco)
+```
+
+surface bâti réel et surface terrain ont un effet positif significatif.
+
+# Cartographie des résidus
+
+Résidus: différence entre la valeur y réelle et la valeur y du modèle.
+
+On a souvent des résidus qui forment des pattern spatialisés
+
+```{r}
+dataSf$resMco <- mco$residuals
+
+tm_shape(dataSf) + tm_dots(col = "resMco", style = "quantile")
+```
+
+Couleur rouge : le modèle sous-estime le prix
+Couleur verte: le modèle sur-estime le prix
+
+# Modèle GWR
+
+## Principes généraux
+
+MCO : un coefficient moyen par variable
+
+GWR: coefficient moyen pour chaque maison avec le voisinage uniquement
+
+Choix: distance du voisinage et pondération
+
+Caractérisation du voisinage: Knn, semi-variogramme
+
+GWR: cartographie des variations spatiales: endroits ou tel prédicteur joue et où il ne joue pas.
+
+GWR, étape pour mieux comprendre le territoire et compléter son modèle.
+
+### Deux étapes
+
+Définir le voisinage et ensuite le pondérer.
+
+Caractériser le voisinage : distance fix, nbre de voisin, graphe...
+
+Pondération:
+- binaire (voisin ou non)
+- pondération selon la distance (fonction inverse)
+
+Il existe 2 packages R pour estimer la GWR.
+
+GWModel est plus convivial mais non compatible avec SF
+
+Première chose à faire : convertir l’objet sf en objet sp
+
+```{r}
+dataSp <- as_Spatial(dataSf) # le package GWmodel n'est pas compatible avec 'sf'
+```
+
+ 
+Construction de la matrice de distances qui servira pour le calibrage.
+Donc cela peut devenir un peu long voir compliquer sur de gros échantillons.
+
+```{r}
+matDist <- gw.dist(dp.locat = coordinates(dataSp))
+```
+
+# Optimisation du voisinage
+Paramètres important de GWR:
+
+- `bw`: fenêtre de voisinage
+- `adaptative`: distance (FALSE) ou nbre de voisin (TRUE) 
+
+
+Parfois problème de convergence si distance: manque de voisin, donc très grande distance.
+Nbre de voisin, on est certain d'avoir assez de voisin.
+
+En général, on conseille d'utiliser un nombre de voisin si la répartition n'est pas régulière.
+
+On cherche à minimiser l'AIC entre 2 fonctions pour choisir la meilleure
+
+Fonction bi-carrée: passer un certain seuil la pondération est égale à 0
+
+## Comparaison de deux pondérations spatiales : exponentielle et bicarrée :
+
+### Calcul du nombre de voisin optimal pour chaque pondération spatiale
+
+```{r Exponential}
+# Exponential
+nNeigh.exp <- bw.gwr(data = dataSp, approach = "AICc", # fonction cible méthode de validation
+                     kernel = "exponential", # fonction de noyau
+                     adaptive = TRUE, # nbre de voisin
+                     dMat = matDist,
+                     formula = log_valeur_fonciere ~ log_dist_litt + log_surface_reelle_bati + log_surface_terrain)
+```
+
+Nombre de voisin optimal est égal à 25.
+
+Valeur AICc: paramètre optimal pour le modèle
+
+
+```{r Bisquare}
+# Bisquare
+nNeigh.bisq <- bw.gwr(data = dataSp, approach = "AICc", 
+                      kernel = "bisquare", 
+                      adaptive = TRUE, 
+                      dMat = matDist, 
+                      formula = log_valeur_fonciere ~ log_dist_litt + log_surface_reelle_bati + log_surface_terrain)
+```
+
+Avec la fonction bisquare, Nombre de voisin optimal est égal à 151.
+
+
+### Estimation de la GWR
+
+####  Avec pondération exponential
+
+```{r}
+GWR.exp <- gwr.basic(data = dataSp, bw = nNeigh.exp, kernel = "exponential", adaptive = TRUE,  dMat = matDist, formula = log_valeur_fonciere ~ log_dist_litt + log_surface_reelle_bati + log_surface_terrain)
+```
+
+
+####  Avec pondération bisquare
+
+```{r}
+GWR.bisq <- gwr.basic(data = dataSp, bw = nNeigh.bisq, kernel = "bisquare", 
+                      adaptive = TRUE,  dMat = matDist, 
+                      formula = log_valeur_fonciere ~ log_dist_litt + log_surface_reelle_bati + log_surface_terrain)
+```
+
+
+### Comparaison des deux calibrations :
+
+```{r}
+diagGwr <- cbind(
+  rbind(nNeigh.exp,nNeigh.bisq),
+  rbind(GWR.exp$GW.diagnostic$gw.R2,GWR.bisq$GW.diagnostic$gw.R2),
+  rbind(GWR.exp$GW.diagnostic$AIC,GWR.bisq$GW.diagnostic$AIC)) %>% 
+  `colnames<-`(c("Nb Voisins","R2","AIC")) %>% 
+  `rownames<-`(c("EXPONENTIAL","BISQUARE"))
+diagGwr
+```
+
+Explication:
+
+Exponentielle : maximise le R2 (explique 58% de la variation des prix) et minimise l'AIC : modèle plus performant
+
+Bisquare: n'explique que 50% de la variation des prix, l'AIC est moins bon.
+
+A partir de ces éléments, on va choisir la GWR exponentielle (plus performante).
+
+#### Interprétation des résultats bruts de la GWR :
+
+
+Interprétation des résultats de la GWR pas facile mais toujours intéressant.
+
+```{r}
+GWR.exp
+```
+
+Min et max distance : min négatif et max positif : inversion de signe par endroit. 
+
+Surface réelle: certains endroits la surface a un fort impact, d'autres moins
+
+#### Cartographie des betas
+
+pas de fonction toute prête pour cartographier les résidus
+
+```{r}
+# Fonction de cartographie automatique des coefficients GWR et de la t-value
+mapGWR <- function(spdf,var,var_TV,legend.title = "betas GWR",main.title, dot.size = 0.3) {
+  tv <- spdf[abs(var_TV)>1.96,] # tv t-value: coeff régression / écart-type
+  tm_shape(spdf) +
+    tm_dots(var, title = legend.title, size = dot.size) +
+    tm_shape(oleron) + tm_lines() +
+    tm_shape(tv) + tm_dots(col="grey40") +
+    tm_layout(title = main.title, legend.title.size =0.9, inner.margins = .15) 
+}
+```
+
+t-value: coeff régression / écart-type
+
+Certains endroits coefficients très élevés mais erreur standard aussi, la t-value le met en valeur.
+
+Si t-value très basse : signal un coefficient 
+
+#### Planche cartographique des 3 variables
+
+```{r}
+# 
+tmap_mode("plot")
+a <- mapGWR(GWR.exp$SDF, var = "log_dist_litt",var_TV = GWR.exp$SDF$log_dist_litt_TV,
+            main.title = "Distance au littoral")
+b <- mapGWR(GWR.exp$SDF, var = "log_surface_reelle_bati",var_TV = GWR.exp$SDF$log_surface_reelle_bati_TV,
+            main.title = "Surface bâtie")
+c <- mapGWR(GWR.exp$SDF, var = "log_surface_terrain",var_TV = GWR.exp$SDF$log_surface_terrain_TV,
+            main.title = "Surface terrain")
+
+tmap_arrange(a,b,c)
+```
+
+
+Variation de couleur: variation de la variable
+Si significatif : point au milieu du cercle.
+
+Interprétation des cartes :
+- Surface bâtie : effet de la surface batie plus importante à chateau d'Oléron et à Saint Pierre d'Oléron (valeurs rouge) qu'ailleurs. Pour une étude très locale, cela ne vaudra pas le coup d'étudier cette variable
+- Surface terrain: Saint Denis
+- Distance au littoral: Saint Trojan, les prix vont beaucoup augmenter quand on se rapproche du littoral (effet pont ?)
+
+Effets de contexte locaux
+- caractéristqiues intrinsèques / endogènes : normes locales partagées ex quartier pavillionnaire
+- caractéristiques exogènes : effet pont à proximité
+
+
+# Aller plus loin
+## GWR multiscalaire
+
+Modèle mixte : GWR + modèle global dans le même modèle.
+
+Nombre de variable déterminé pour chaque variable.
+
+```{r}
+source("R/gwr.multiscale_T.r") 
+
+# On lance la MGWR
+MGWR <- gwr.multiscale(formula = log_valeur_fonciere ~ log_dist_litt + 
+                         log_surface_reelle_bati + log_surface_terrain,
+                       data = dataSp, kernel = "exponential",
+                       predictor.centered=rep(T, 3), # centrage des prédicteurs
+                       adaptive = TRUE,
+                       bws0 = rep(1,4)) # BW minimum pour l'optimisation
+```
+
+```{r}
+mgwr.bw  <- round(MGWR[[2]]$bws,1) # Nombre de voisins pour chaque prédicteur
+mgwr.bw
+```
+
+
+```{r}
+# Exploration des résultats statistiques
+print(MGWR)
+```
+
+
+On constate que si l’effet de la surface bâtie sur les prix agit de façon assez globale à l’échelle de l’île, les deux autres prédicteurs agissent de manière beaucoup plus locales. Ainsi par exemple, l’effet de la distance au littoral relève d’un processus très localisé.
+
+### Cartographie des résultats
+
+```{r}
+a <- mapGWR(MGWR$SDF, var = "log_dist_litt",var_TV = MGWR$SDF$log_dist_litt_TV,
+       main.title = "Distance au littoral (bw = 77)")
+b <- mapGWR(MGWR$SDF, var = "log_surface_reelle_bati",var_TV = MGWR$SDF$log_surface_reelle_bati_TV,
+       main.title = "Surface bâtie (bw = 368)")
+c <- mapGWR(MGWR$SDF, var = "log_surface_terrain",var_TV = MGWR$SDF$log_surface_terrain_TV,
+       main.title = "Surface terrain (bw = 23)")
+
+tmap_arrange(a,b,c)
+```
+
+
+## Régionalisation des sous-marchés immobiliers
+
+On peut utiliser des coefficients locaux pour identifier des zones homogènes où on va essayer que les prédicteurs soient homogènes.
+
+Sous-régions où les effets sont à peu près homogènes: minimisation de la variance.
+
+Principe général: regrouper les observations qui se ressemblent  (classification) mais aussi il faut qu'elles soient proches.
+
+Plusieurs méthodes existent, nous allons utiliser SKATER qui utilise des graphes.
+
+Méthode SKATER implémentée dans {spdep}.
+
+Méthode en 4 étapes:
+- graphe de voisinage
+- pondération des arrètes (fonction de dissimilarité : GWR)
+- élagage de l'arbre
+- maximiser la variance inter-classe des graphes.
+
+
+### Première étape : préparation de la table des coefficients GWR
+
+```{r}
+# Centrage-réduction pour rendre les coefficients comparables
+gwrB.scaled <- GWR.exp$SDF %>% 
+  as.data.frame() %>% 
+  select(1:4) %>% 
+  mutate_all(~scale(.)) %>% 
+  rename_with(~paste(.x, "b", sep = "_"))
+```
+
+
+### Deuxième étape : computation de l’algorithme SKATER
+#### Définition du voisinage de chaque bien
+
+```{r}
+knn <- knearneigh(GWR.exp$SDF, k=50) # 50 pour que le graphe soit fermé
+nb <- knn2nb(knn) # nombre de voisin
+plot(nb, coords = coordinates(GWR.exp$SDF), col="blue")
+```
+
+Si graphe non fermé partout (connexité ?), il y a une erreur, augmentation du paramètre `k`.
+
+#### Calibrage du coût des arêtes et de la pondération spatiale
+
+```{r}
+costs <- nbcosts(nb, data = gwrB.scaled) # pondération des arêtes
+costsW <- nb2listw(nb, costs, style="B") # transformation en matrice de pondération, style : type de pondération, "B" binary
+```
+
+#### Minimisation de l’arbre et classification
+
+Suppression des arêtes qui ont des poids faibles (points qui se ressemblent pas). Au final, 1 point à une arête.
+```{r}
+costsTree <- mstree(costsW)
+plot(costsTree, coords = coordinates(GWR.exp$SDF), col="blue", main = "Arbre portant minimal")
+```
+
+Découpe en 6 groupes
+
+`ncuts`: nombre de groupe - 1
+
+```{r}
+clus6 <- skater(edges = costsTree[,1:2], data = gwrB.scaled, ncuts = 5)
+```
+
+
+### Troisième étape : analyse des résultats
+
+#### Cartographie des clusters
+
+```{r}
+dataClus <- dataSf %>% 
+mutate(clus = as.factor(clus6$groups)) %>% 
+bind_cols(gwrB.scaled)
+
+tmap_mode(mode = "view")
+tm_shape(dataClus) + 
+tm_symbols(col="clus", size=.8, palette = "Set1") +
+tm_layout(title = "Classification en 6 groupes") 
+
+```
+
+
+#### Caractérisation des clusters
+
+```{r}
+nomVar <- c("log_dist_litt_b","log_surface_reelle_bati_b","log_surface_terrain_b","Intercept_b")
+
+clusProfile <- dataClus[, c(nomVar, "clus")] %>% 
+  group_by(clus) %>% 
+  summarise_each(funs(mean)) %>% # moyenne des coeff GWR pour chaque cluster
+  st_drop_geometry()
+
+clusLong <- reshape2::melt(clusProfile, id.vars = "clus")
+
+profilePlot <- ggplot(clusLong) +
+  geom_bar(aes(x = variable, y = value), 
+           fill = "grey25", 
+           position = "identity", 
+           stat = "identity") +
+  scale_x_discrete("Effet") + 
+  scale_y_continuous("Valeur moyenne par classe") +
+  facet_wrap(~ clus) + 
+  coord_flip() + 
+  theme(strip.background = element_rect(fill="grey25"),
+        strip.text = element_text(colour = "grey85", face = "bold"))
+
+profilePlot
+```
+
+
