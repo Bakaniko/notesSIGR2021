@@ -1,0 +1,180 @@
+---
+title: "Atelier analyse d'images raster"
+author: "Malika Madelin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{atelier_analyse_image_raster_Madelin}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+Plusieurs types
+
+- images satellitaires
+- produits (NDVI, population, élévation)
+
+Images satellitaires :
+ - plusieurs bandes
+ - différentes résolutions spectrales
+ 
+Valeurs:
+- classification : CLC 
+- numériques : altimétrie
+
+Réflexion sur le poids des images: adapter le type (logique, int8, int64, signé, non signé)
+
+# intérêts
+
+- structure données simples
+- topoligie implicite
+- information spatiale **continue**, souvent récoltée à **distance** et **globalement**.  étude de la Variation spatiale à des échelles fines
+- information figée dans le *temps* + répétitivité (dynamiques)
+- caractère **multispectral** (bandes/couches)
+- multidimensionnel (hauteur/profondeur, temps)
+- plusieurs thématiques pour une même image
+- relative facilité des traitements
+
+Mais volume des données non négligeable
+
+# Reproductibilité
+
+- homogénéité dans la production des données (produits globaux), harmonisation minime
+ - correction atmosphérique
+ - correction topographique et projection : ortho-rectifiés
+- données souvent accessibles 
+ - via des **plateformes** (Earth Explorer, Sentinel Hub, Google Earth Engine)
+ - via des **outils d'extraction** pour certains formats (*ncdf*)
+ - via certains packages R ({raster}, {modisTSP}, {sen2r})
+- nombreux formats ouverts (geoTIFF, ascii, jp2 (Jpeg2000), gpkg-raster, coverageJSON), array (tableaux de données multidumensionnelles) : ncdf, hdf, grib
+- des librairies C, communes à plusieurs langages (GDAL,...)
+
+# Sous R, 3 packages
+
+## {raster}
+
+Robert Hijmans
+
+Documentation importante (250 pages)
+
+## {stars}
+
+Edzer Pebesma
+
+- Datacubes spatio-temporels
+- syntax proche de celle de {sf}
+- efficace avec les fichiers ncdf
+- encore peu présent dans la communauté
+
+## {terra}
+
+Robert Hijmans
+
+- Modernisation du code de {raster}
+- documentation riche
+
+## Choix d'un package
+
+- si habitudes avec {raster} => {terra}
+- si nouveau et/ou habitué {sf}/{tidyverse} => {stars}
+
+# Traitements d'image raster
+
+## Lecture
+
+- GDALInfo() : info sur le fichier
+
+à vérifier:
+- taille : `object.size()`
+- chargement en mémoire : `inMemory()`
+
+- {raster} : `raster()`
+ - un seule bande
+ - `brick()` permet de lire toutes les couches
+- {terra}:
+  - `rast()`
+  - charge toutes les bandes
+- {stars}
+  - `read_stars`
+  
+### opérations
+
+- dimensions
+- étendiue
+- résolution
+- projection
+- visualisation
+- histogramme des valeurs
+- parfois améliorations des contrastes (*streching*)
+
+## Modification de la zone d'études
+### (re)projection
+
+Prise de la valeur
+- plus proche voisin (du centroid du pixel)
+- bilinéaire (moyenne des 4 plus proches voisins)
+
+`raster::projectRaster()`/`terra::project()`/`stars::st_transform()`
+
+### Découpage et masque
+
+- `crop()` : BBOX
+- `mask()` : emprise exacte
+
+### agrégation / désagrégation
+### Fusion (*merge*) et mosaïque
+
+## Opérations locales
+
+Opérations pixel à pixel
+
+- reclassiifcation
+- créer des masques raster ("1"/"0")
+- calculatrice raster / matriciel
+ - gestion des données manquantes
+ - calcul d'indices (NDVI)
+ - `terra::calc()`
+ 
+## Opérations focales
+
+un pixel et son entourage
+
+- filtres
+  - exemple sur les rasters d'altitude
+  
+## Opérations zonales ou globales
+
+ensemble du raster ou par zones
+
+# Opérations des images satellites
+
+- amélioration pour aider à l'interprétation
+- traitements physiques (signal -> propriété physique)
+- réalisation de zonages
+  - approche pixel
+  - approche zonale
+  - approche objet (identification des objets puis traitements statistiques)
+  - classification non-supervisée
+   - classification ascendante hiérachique
+   - *k-means*
+  - classification supervisée
+  
+# Cartographie - visualisation
+
+Nombreux packages:
+- {raster} avec plot()
+- {stars} : agrégation en amont qui permet d'accélérer
+- {sp} avec `spplot()`
+- {rasterVis}
+- {leaflet} : problème de projection, rasters lourds
+- {tmap}
+- {rayshader}
+- {mapview}
+
