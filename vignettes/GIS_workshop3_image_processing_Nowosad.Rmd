@@ -1,0 +1,291 @@
+---
+title: "Image processing and all things raster"
+author: "Jakub Nowosad"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GIS_workshop3_image_processing_Nowosad}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Slides : https://nowosad.github.io/SIGR2021/workshop2/workshop2.html#1
+
+```{r data-input}
+srtm_path = system.file("raster/srtm.tif", package = "spDataLarge")
+srtm_path
+```
+
+`system.file` : nice way to get access to example data contained in packages by getting the path.
+
+R packages are better for storing files than R objects. FIles are mor generic and broader.
+
+
+Load {terra} and the dataset
+```{r}
+library(terra)
+srtm = rast(srtm_path)
+srtm
+```
+
+`rast()` just connect to the file but not loading into memory.
+It also provide useful information about the dataset.
+
+
+
+Looks to alternatives of {terra}:
+- {raster} : predecessor of {terra}, no new developpement
+- {stars} : compatible with {sf}, quick, multidimensional, support different types of raster (regular (90% of use cases), rotated, sheared, rectilinear, curvilinear), connect to geospatial servers (works in progress)
+
+# Maps
+## Mapping tools
+Maps were detailed earlier, this workshop will use `plot()` and `tmap()`
+
+Generally, `plot()` functions simplifies datasets larger than the image dimensions.
+It is faster to do that.
+
+With `tmap()` if there is more than 1 million cells, the data will bo down sampled by `tmap()`
+
+# Map algebra
+
+Four groups
+- **local** : computation one cell
+- **focal** : cell value and its neigbourg (*moving window*)
+- **zonal operations** summarize raster values for somes zones
+- **global** summarize the whole raster (max, min ...)
+
+## Local operations
+
+- raster calculator
+ - `srtm2 = srtm * 1000`
+ - `srtm3 = srtm - globale(srtm, min)[[1]]` => 0 -> to max value
+ - `srtm3 = srtm - globale(srtm, median)[[1]]` => 0 will be the median value, negative value are under the median value
+- replacing values
+```{r}
+srtm_new = srtm
+srtm_new[srtm_new < 1500] = NA # values under 1500 will be NA
+```
+
+- reclassification
+  - Reclassification table (2 or 3 columns) : from this value to this value replace by this value
+  - `classify` takes reclassification table as argument
+- operations on many layers (calculating spectral indices, NDVI and such)
+  - landsat dataset is a simplified dataset from landsat
+  
+```{r}
+landsat_path = system.file("raster/landsat.tif", package = "spDataLarge")
+landsat = rast(landsat_path)
+landsat
+```
+
+  - Write a function to compute the ndvi.
+  - use the `lapp()` function
+```{r}
+ndvi_fun = function(nir, red){
+  (nir - red) / (nir + red)
+}
+ndvi = lapp(landsat[[c(4, 3)]], # subset 2 layers (4 and 3) from the dataset
+            fun = ndvi_fun) # custom ndvi function
+```
+
+
+
+
+## Focal operations
+
+Works on cell neigbourhoood, we need to provide the neighbourghood (*window*)
+
+The window is provided by a matrix (mandatory type).
+The function will be applied on the center cell.
+The matrix can be weighted to have special effect.
+The matrix needs to be uneven 3x3, 5x5, 7x7. With 4x4 matrix, the function will not be able to determined the center.
+
+**Sobel operator** : edge detector
+
+The operation starts from the top left to the bottom right, but the order does not change the output.
+
+
+You can use focal operation on categorical raster : "what's the most dominant value."
+
+## Zonal operations
+
+also know as zonal statistics.
+Results are **summary table** not a raster.
+
+You can provide a function, some are optimised : "mean", "max", "min", "media" **note the `"`**.
+
+## Global operation
+
+Got a result for the whole raster.
+`global()`
+
+## Exercices
+
+
+- Find the file path of the nz_elev.tif data using the following code: system.file("raster/nz_elev.tif", package = "spDataLarge"). Read this file into R. What is the resolution of the data?
+
+```{r}
+system.file("raster/nz_elev.tif", package = "spDataLarge")
+
+nz_elev <- terra::rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
+nz_elev
+```
+
+The resolution is `resolution  : 1000, 1000  (x, y)`
+
+- Create and customize a map based on the nz_elev.tif dataset. Save the result to a .png file.
+
+```{r}
+library(tmap)
+
+nz_map <- tm_shape(nz_elev) +
+  #tm_graticules() +
+  tm_raster(style = "cont", 
+            title = "elevation (m a.s.l)",
+            palette = "-Spectral") +
+  tm_scale_bar(breaks = c(0, 2, 4),
+               text.size = 1) +
+  tm_credits("Nicolas Roelandt, 2021") +
+  tm_layout(inner.margins = 0,
+    main.title = "New Zealand")
+
+tmap_save(nz_map, "vignettes/images/new_zealand_elevation.png")
+```
+
+
+
+- Replace values below 0 to 1 (depressions), values between 0 and 300 to 2 (plains), values between 300 and 600 to 3 (hills), and values between 600 and the maximum value to 4 (mountains) in the nz_elev object. Create a new object nz_elev_class.
+
+```{r}
+rcl = matrix(c(-Inf, 0, 1, 
+               0, 300, 2, 
+               300, 600, 3, 
+               600, 4140.333, 4),
+             ncol = 3, byrow = TRUE)
+rcl
+nz_elev_class <- classify(nz_elev, rcl = rcl)
+nz_elev_class 
+```
+
+- Look at the focal function documentation. Apply the Laplacian and the Sobel filters on nz_elev. Compare the results visually.
+
+- Calculate an average elevation value in nz_elev for each category in nz_elev_class.
+
+- Write a function to calculate the soil-adjusted vegetation index (SAVI; https://en.wikipedia.org/wiki/Soil-adjusted_vegetation_index ). Calculate SAVI for the Landsat 8 images for the area of Zion National Park.
+
+
+# Transformations
+## Resampling
+## Reprojecting rasters
+
+- different from vector
+- needs to resample
+  - create an empty raster template
+  - to fillthe empty value, use `resample()`
+  - parameters : base image, empty raster, function to explain how to resample (method : "bilinear" - good for continues values, "nearest neighbourg" - only one for categorical data)
+  
+```{r}
+wgs84 = "EPSG:4326"
+
+nlcd_wgs84 = project(nlcd, wgs84, method = "near")
+```
+  
+To create your own projection : [projectionwizard.org](https://projectionwizard.org/)
+
+# Raster-vector interactions
+
+## Raster cropping and masking
+Cropping : remove data outside the BBox
+Crop is fast
+
+The mask function replace all values outside the shape with NA.
+Mask is always used with a cropped image to delete NA data outside the shape
+
+## Raster extraction 
+### With points
+- gps points or anything.
+
+For example, I want elevation of each point using the elevation raster.
+
+`terra::extract()`
+
+The extract is a dataframe with ID and value.
+
+### With polygons
+
+A polygons covers a lotof pixels. 
+Extract each pixel values and give the ID of the polygons.
+
+Useful to see the distribution, do some some statistics.
+
+## Rasterization
+Transform vector data to raster data
+
+### Presence / Absence
+
+- `rasterize` if there is a point in the cell, I get a value of one (TRUE/FALSE)
+
+- `fun = length` : count of point in the cell
+- `field = "vals", fun = sum` : sum "vals" values of all points inside the cell
+
+## Vectorization
+
+From raster to vector.
+
+Often to create polygons on a categorical raster data
+
+- create borders
+- contours lines (elevation lines, precipitations lines, isolines) : `as.contour()` : you can provide a number of line to create (`nlines`) or elevation limits `z` , 
+
+# Conversions
+From spatial type/class to another
+
+# Output
+
+Save raster file
+
+`writeRaster()` : depending on the file extension we can have different format
+With {terra}, geoTIFF are compressed by default.
+
+# Raster analysis
+
+## Global or local autocorrelation
+
+`autocor()` :
+- by default, global autocorrelation
+- default is 'Moran' but you can use 'Geary' autocorrelation
+For elevation, high autocorrelation is expected
+
+For local correlation
+- provide a window 
+  - matrix neighborhood
+  - can be `queen` (8-n) or `rook` (4-n) neighborhood
+- `global = FALSE`
+- the output is a raster: find place with high or low autocorrelation
+
+## Predictions
+
+{terra} objects can be used on glm, randomForest or prcomp functions.
+
+## Interpolations
+`interpolate()`
+
+We have points but we want areas.
+
+Create a model from the points (splines, kriging, IDW)
+
+Geostatistiques with {gstat}
+
+`gstat::variogram()` distance between values and how values are dissimilear to each other.
+
+## Segmentations
+
+{supercells} : super-pixels : automatically find similar areas in visible imagerie
+
+Return an {sf} dataframe with centroids coordinates and mean pixel value of each band of supercell.
