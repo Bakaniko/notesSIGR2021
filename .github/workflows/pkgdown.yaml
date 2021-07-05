@@ -41,6 +41,14 @@ jobs:
           install.packages(c("sf", "terra", "spData", "spDataLarge", "nzelect", "tmap"), type = "binary")
         shell: Rscript {0}
 
+      - name: "[Custom block] [macOS] Install spatial libraries"
+      # source : https://github.com/r-spatial/sf/blob/master/.github/workflows/tic.yml#L93
+        if: runner.os == 'macOS'
+        run: |
+          # conflicts with gfortran from r-lib/actions when linking gcc
+          rm '/usr/local/bin/gfortran'
+          brew install pkg-config gdal proj geos
+
       - name: Install package
         run: R CMD INSTALL .
 
