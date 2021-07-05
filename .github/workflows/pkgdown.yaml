@@ -44,6 +44,15 @@ jobs:
       - name: Install package
         run: R CMD INSTALL .
 
+      - name: Install spatial dependencies
+        run: |
+          Rscript -e "if (!requireNamespace('sf')) install.packages('sf', type = 'source')"
+          Rscript -e "if (!requireNamespace('terra')) install.packages('sf', type = 'source')"
+          Rscript -e "if (!requireNamespace('spData')) install.packages('sf', type = 'source')"
+          Rscript -e "if (!requireNamespace('spDataLarge')) install.packages('sf', type = 'source')"
+          Rscript -e "if (!requireNamespace('nzelect')) install.packages('sf', type = 'source')"
+          Rscript -e "if (!requireNamespace('tmap')) install.packages('sf', type = 'source')"
+
       - name: Deploy package
         run: |
           git config --local user.email "actions@github.com"
