@@ -3,7 +3,7 @@ title: "Image processing and all things raster"
 author: "Jakub Nowosad"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GIS_workshop3_image_processing_Nowosad}
+  %\VignetteIndexEntry{Image processing and all things raster}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,7 +11,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>", 
+  error=TRUE
 )
 ```
 

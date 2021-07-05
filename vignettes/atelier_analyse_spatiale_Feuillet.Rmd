@@ -3,7 +3,7 @@ title: "Atelier d'analyse spatiale"
 author: "Thierry Feuillet"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{atelier_analyse_spatiale_Feuillet}
+  %\VignetteIndexEntry{Atelier d'analyse spatiale}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,7 +11,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  error=TRUE
 )
 ```
 
@@ -102,7 +103,7 @@ plot(st_geometry(dataSf))
 Données source: https://github.com/sigr2021/gwr
 
 ```{r}
-oleron <- st_read("data-raw/oleron.shp")
+oleron <- st_read("../data-raw/oleron.shp")
 ```
 
 
@@ -467,7 +468,7 @@ Modèle mixte : GWR + modèle global dans le même modèle.
 Nombre de variable déterminé pour chaque variable.
 
 ```{r}
-source("R/gwr.multiscale_T.r") 
+source("../R/gwr.multiscale_T.r") 
 
 # On lance la MGWR
 MGWR <- gwr.multiscale(formula = log_valeur_fonciere ~ log_dist_litt + 

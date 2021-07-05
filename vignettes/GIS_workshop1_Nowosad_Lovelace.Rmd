@@ -1,8 +1,11 @@
 ---
-title: "GIS_workshop1_Nowosad_Lovelace"
+title: "GIS workshop"
+author:
+  - Jakub Nowosad
+  - Robin Lovelace
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GIS_workshop1_Nowosad_Lovelace}
+  %\VignetteIndexEntry{GIS workshop}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,8 +13,10 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>", 
+  error=TRUE
 )
+
 ```
 
 Slides: https://nowosad.github.io/SIGR2021/workshop1/workshop1_rl.html#1
@@ -60,7 +65,7 @@ help(package = "spData")
 ?AirPassengers
 ```
 
-```{r plot-nz}
+```{r plot-nz, error=TRUE}
 library(spData)
 plot(nz) # if list error, maybe because sf is not loaded yet and plot don't know how to plot sf objects
 
@@ -91,12 +96,12 @@ plot(voting_places_sf, add = TRUE)
 ### Spatial subsetting
 
 Filtering voting places that are inside NZ island
-```{r}
+```{r, error=TRUE}
 vsub = voting_places_sf[nz,] # Error message because mismatching CRS issues
 ```
 
 ```{r}
-sf::st_crs(voting_places_sf) # NA
+sf::st_crs(voting_places_sf, error=TRUE) # NA
 sf::st_crs(nz) # EPSG:2193
 ```
 

@@ -1,9 +1,11 @@
 ---
 title: "GIS and mapping" 
-author: "Jakub Nowosad"
+author: 
+  - Jakub Nowosad
+  - Robin Lovelace
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GIS_workshop2_GIS_Mapping_Nowosad}
+  %\VignetteIndexEntry{GIS and mapping}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,10 +15,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
-
-```{r setup}
-library(notesSIGR2021)
 ```
 
 Slides: https://nowosad.github.io/SIGR2021/workshop1/workshop1_jn.html#1
@@ -91,7 +89,7 @@ tm_shape(nz_4326) +
 
 ## Explore color palettes in {tmap}
 
-```{r}
+```{r, eval=FALSE}
 tmaptools::palette_explorer()# needs shiny installed
 ```
 
@@ -186,7 +184,9 @@ tmap::tmap_mode("view")
 my_map
 tmap::tmap_mode("plot")
 my_map
+```
 
+```{r, eval=FALSE}
 tmap_save(my_map, filename = "vignettes/images/nz.png", width = 300, height = 800, dpi = 300)
 tmap_save(my_map, filename = "vignettes/images/nz.svg")
 tmap_save(my_map, filename = "vignettes/images/nz.html")
