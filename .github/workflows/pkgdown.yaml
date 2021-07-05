@@ -38,7 +38,6 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           install.packages("pkgdown", type = "binary")
-          install.packages(c("sf", "terra", "spData", "spDataLarge", "nzelect", "tmap"), type = "binary")
         shell: Rscript {0}
 
       - name: "[Custom block] [macOS] Install spatial libraries"
@@ -57,7 +56,7 @@ jobs:
           Rscript -e "if (!requireNamespace('sf')) install.packages('sf', type = 'source')"
           Rscript -e "if (!requireNamespace('terra')) install.packages('sf', type = 'source')"
           Rscript -e "if (!requireNamespace('spData')) install.packages('sf', type = 'source')"
-          Rscript -e "if (!requireNamespace('spDataLarge')) install.packages('sf', type = 'source')"
+          Rscript -e "if (!requireNamespace('spDataLarge')) install.packages('spDataLarge', repos = 'https://nowosad.github.io/drat/', type = 'source')"
           Rscript -e "if (!requireNamespace('nzelect')) install.packages('sf', type = 'source')"
           Rscript -e "if (!requireNamespace('tmap')) install.packages('sf', type = 'source')"
 
