@@ -53,6 +53,7 @@ jobs:
 
       - name: Install spatial dependencies
         run: |
+          Rscript -e "install.packages('rgdal', type = 'source')"
           Rscript -e "install.packages('sf', type = 'source')"
           Rscript -e "install.packages('terra', type = 'source')"
           Rscript -e "install.packages('spData', type = 'source')"
