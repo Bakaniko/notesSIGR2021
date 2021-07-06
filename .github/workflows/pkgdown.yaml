@@ -53,12 +53,12 @@ jobs:
 
       - name: Install spatial dependencies
         run: |
-          Rscript -e "if (!requireNamespace('sf')) install.packages('sf', type = 'source')"
-          Rscript -e "if (!requireNamespace('terra')) install.packages('sf', type = 'source')"
-          Rscript -e "if (!requireNamespace('spData')) install.packages('sf', type = 'source')"
-          Rscript -e "if (!requireNamespace('spDataLarge')) install.packages('spDataLarge', repos = 'https://nowosad.github.io/drat/', type = 'source')"
-          Rscript -e "if (!requireNamespace('nzelect')) install.packages('sf', type = 'source')"
-          Rscript -e "if (!requireNamespace('tmap')) install.packages('sf', type = 'source')"
+          Rscript -e "install.packages('sf', type = 'source')"
+          Rscript -e "install.packages('terra', type = 'source')"
+          Rscript -e "install.packages('spData', type = 'source')"
+          Rscript -e "install.packages('spDataLarge', repos = 'https://nowosad.github.io/drat/', type = 'source')"
+          Rscript -e "install.packages('nzelect', type = 'source')"
+          Rscript -e "install.packages('tmap', type = 'source')"
 
       - name: Deploy package
         run: |
