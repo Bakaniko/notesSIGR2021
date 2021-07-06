@@ -60,6 +60,7 @@ jobs:
           Rscript -e "install.packages('spDataLarge', repos = 'https://nowosad.github.io/drat/', type = 'source')"
           Rscript -e "install.packages('nzelect', type = 'source')"
           Rscript -e "install.packages('tmap', type = 'source')"
+          Rscript -e "install.packages('dplyr', type = 'source')"
 
       - name: Deploy package
         run: |
