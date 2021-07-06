@@ -3,8 +3,14 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   GIS_in_R_Nowosad_Lovelace: GIS_in_R_Nowosad_Lovelace.html
+  GIS_workshop1_Nowosad_Lovelace: GIS_workshop1_Nowosad_Lovelace.html
+  GIS_workshop2_GIS_Mapping_Nowosad: GIS_workshop2_GIS_Mapping_Nowosad.html
+  GIS_workshop3_image_processing_Nowosad: GIS_workshop3_image_processing_Nowosad.html
+  atelier_analyse_image_raster_Madelin: atelier_analyse_image_raster_Madelin.html
+  atelier_analyse_spatiale_Feuillet: atelier_analyse_spatiale_Feuillet.html
   introduction_git_Timothee_Giraud: introduction_git_Timothee_Giraud.html
   litterate_programming_ronan_ysebaert: litterate_programming_ronan_ysebaert.html
   recherche_reproductible_Arnaud_Legrand: recherche_reproductible_Arnaud_Legrand.html
-last_built: 2021-06-30T07:11Z
+  sciences_reproductibles_analyse_spatiale_Guerois: sciences_reproductibles_analyse_spatiale_Guerois.html
+last_built: 2021-07-06T12:49Z
 
